@@ -1,0 +1,75 @@
+import gspread
+from google.oauth2.service_account import Credentials
+
+from config import (
+    GOOGLE_CREDENTIALS,
+    SPREADSHEET_ID,
+    WORKSHEET_NAME,
+    START_ROW,
+    COL_KOC,
+    COL_STATUS,
+    COL_PRODUCT,
+    COL_VIDEO_LINK,
+    TARGET_STATUS,
+)
+
+
+class SheetService:
+    def __init__(self):
+        scopes = [
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/drive",
+        ]
+
+        credentials = Credentials.from_service_account_file(
+            GOOGLE_CREDENTIALS,
+            scopes=scopes,
+        )
+
+        client = gspread.authorize(credentials)
+
+        self.sheet = client.open_by_key(SPREADSHEET_ID).worksheet(WORKSHEET_NAME)
+
+    @staticmethod
+    def col_to_index(col: str) -> int:
+        result = 0
+        for c in col.upper():
+            result = result * 26 + ord(c) - ord("A") + 1
+        return result
+
+    def get_rows_to_process(self):
+        values = self.sheet.get_all_values()
+
+        koc_col = self.col_to_index(COL_KOC) - 1
+        status_col = self.col_to_index(COL_STATUS) - 1
+        product_col = self.col_to_index(COL_PRODUCT) - 1
+        video_col = self.col_to_index(COL_VIDEO_LINK) - 1
+
+        rows = []
+
+        for row_number in range(START_ROW, len(values) + 1):
+            row = values[row_number - 1]
+
+            def get_value(index):
+                return row[index].strip() if index < len(row) else ""
+
+            koc = get_value(koc_col)
+            status = get_value(status_col)
+
+            if not koc:
+                continue
+
+            if status != TARGET_STATUS:
+                continue
+
+            rows.append(
+                {
+                    "row": row_number,
+                    "koc": koc,
+                    "status": status,
+                    "product": get_value(product_col),
+                    "video_link": get_value(video_col),
+                }
+            )
+
+        return rows
