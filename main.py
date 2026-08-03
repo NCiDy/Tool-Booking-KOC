@@ -1,4 +1,6 @@
 import logging
+
+from browser.browser_manager import BrowserManager
 from sheet.sheet_service import SheetService
 
 logging.basicConfig(
@@ -14,15 +16,23 @@ def main():
     logging.info("Kết nối Google Sheets")
     sheet = SheetService()
 
-    logging.info("Đọc dữ liệu")
     rows = sheet.get_rows_to_process()
 
     logging.info(f"Tổng số dòng cần xử lý: {len(rows)}")
 
-    for i, item in enumerate(rows, start=1):
-        logging.info(
-            f"[{i}/{len(rows)}] Row {item['row']} - {item['koc']} | {item['product']}"
-        )
+    logging.info("Kết nối Chrome (CDP)")
+
+    browser = BrowserManager()
+
+    try:
+        page = browser.connect()
+
+        logging.info("Đã attach thành công vào tab TikTok Shop Affiliate")
+
+        logging.info(f"URL hiện tại: {page.url}")
+
+    finally:
+        browser.close()
 
 
 if __name__ == "__main__":

@@ -28,3 +28,11 @@ TARGET_STATUS = "ĐÃ NHẬN MẪU"
 
 LOG_DIR = Path("logs")
 REPORT_DIR = Path("reports")
+
+# =========================
+# Browser
+# =========================
+
+CDP_URL = "http://127.0.0.1:9222"
+
+TIKTOK_SAMPLE_REQUEST_URL = "https://affiliate.tiktok.com/product/sample-request"
