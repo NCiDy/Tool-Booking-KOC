@@ -49,7 +49,6 @@ def main():
                 item["row"],
                 video_text
             )
-
             logging.info(
                 f"Đã ghi {len(products)} sản phẩm vào Google Sheets"
             )
