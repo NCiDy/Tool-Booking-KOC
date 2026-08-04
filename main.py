@@ -5,17 +5,29 @@ from browser.tiktok_page import TikTokSampleRequestPage
 from sheet.sheet_service import SheetService
 from browser.history_panel import HistoryPanel
 from reports.report_service import ReportService
+from pathlib import Path
+from datetime import datetime
+
+log_dir = Path("logs")
+log_dir.mkdir(exist_ok=True)
+
+log_file = log_dir / datetime.now().strftime("run_%Y-%m-%d_%H-%M.log")
 
 logging.basicConfig(
     level=logging.INFO,
     format="[%(asctime)s] %(message)s",
     datefmt="%H:%M:%S",
+    handlers=[
+        logging.FileHandler(log_file, encoding="utf-8"),
+        logging.StreamHandler(),
+    ],
 )
 
 
 def main():
     logging.info("Khởi động TikTok Booking Assistant")
 
+    start_time = datetime.now()
     sheet = SheetService()
     rows = sheet.get_rows_to_process()
     report = ReportService()
@@ -94,6 +106,9 @@ def main():
 
                 continue
 
+        end_time = datetime.now()
+        duration = end_time - start_time  
+
         report_path = report.save()
         logging.info(
             f"Đã tạo report: {report_path}"
@@ -103,6 +118,7 @@ def main():
         logging.info(f"Tổng KOC: {len(rows)}")
         logging.info(f"Thành công: {success_count}")
         logging.info(f"Thất bại: {len(failed_kocs)}")
+        logging.info(f"Thời gian chạy: {duration}")
 
         if failed_kocs:
             logging.info("Danh sách KOC thất bại:")
@@ -111,7 +127,8 @@ def main():
                 logging.info(
                     f"- {failed['koc']} (dòng {failed['row']}): {failed['error']}"
                 )    
-
+        logging.info(f"Log file: {log_file}")
+        
     finally:
         browser.close()
 
