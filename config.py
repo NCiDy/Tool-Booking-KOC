@@ -22,10 +22,13 @@ COL_VIDEO_LINK = "R"
 
 TARGET_STATUS = "ĐÃ NHẬN MẪU"
 
-FILTER_BY_DATE = False
+# False = lấy toàn bộ video
+# True = chỉ lấy video trong khoảng ngày
+FILTER_BY_DATE = True
 
-START_DATE = ""
-END_DATE = ""
+# Định dạng: dd/mm/yyyy
+START_DATE = "01/05/2026"
+END_DATE = "30/05/2026"
 # =========================
 # Logging
 # =========================
