@@ -68,7 +68,7 @@ tiktok_booking_assistant/
 ### 1. Clone repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/tiktok_booking_assistant.git
+git clone https://github.com/NCiDy/Tool-Booking-KOC
 cd tiktok_booking_assistant
 ```
 
