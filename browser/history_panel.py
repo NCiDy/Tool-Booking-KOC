@@ -2,6 +2,8 @@ import logging
 from playwright.sync_api import Page, TimeoutError as PlaywrightTimeoutError
 import re
 from constants.product_labels import PRODUCT_LABELS
+from datetime import datetime
+from config import FILTER_BY_DATE, START_DATE, END_DATE
 
 class HistoryPanel:
     def __init__(self, page: Page):
@@ -74,6 +76,39 @@ class HistoryPanel:
 
         return all_products
 
+    def _parse_date(self, date_str: str):
+        try:
+            return datetime.strptime(date_str, "%d/%m/%Y")
+        except Exception:
+            return None
+
+
+    def _should_collect_video(self, publish_date: str):
+        """
+        Trả về:
+        - "collect": lấy link
+        - "skip": bỏ qua (quá mới)
+        - "break": dừng duyệt (đã cũ hơn START_DATE)
+        """
+
+        if not FILTER_BY_DATE:
+            return "collect"
+
+        day = self._parse_date(publish_date)
+        start = self._parse_date(START_DATE)
+        end = self._parse_date(END_DATE)
+
+        if day is None or start is None or end is None:
+            return "collect"
+
+        if day > end:
+            return "skip"
+
+        if start <= day <= end:
+            return "collect"
+
+        return "break"
+
     def process_video_popup(self, product_name: str):
         logging.info(f"[{product_name}] Chờ video cards xuất hiện")
 
@@ -114,6 +149,20 @@ class HistoryPanel:
                 f"[{product_name}] Video {i+1}/{count} - Ngày: {publish_date}"
             )
 
+            action = self._should_collect_video(publish_date)
+
+            if action == "skip":
+                logging.info(
+                    f"[{product_name}] Bỏ qua video ngày {publish_date} (quá mới)"
+                )
+                continue
+
+            if action == "break":
+                logging.info(
+                    f"[{product_name}] Dừng duyệt tại video ngày {publish_date} (đã cũ hơn khoảng cần lấy)"
+                )
+                break
+
             # ===== MỞ VIDEO TRÊN TIKTOK =====
             video_button = block.locator(
                 "button:has-text('Xem video trên TikTok')"
@@ -142,7 +191,6 @@ class HistoryPanel:
                 results.append({
                     "publish_date": publish_date,
                     "url": video_url,
-                    "video_id": video_id,
                 })
 
                 video_page.close()
@@ -153,7 +201,6 @@ class HistoryPanel:
                 results.append({
                     "publish_date": publish_date,
                     "url": "Không lấy được link",
-                    "video_id": "",
                 })
 
         # ===== ĐÓNG POPUP VIDEO =====
