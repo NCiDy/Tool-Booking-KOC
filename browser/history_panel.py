@@ -1,7 +1,7 @@
 import logging
 from playwright.sync_api import Page, TimeoutError as PlaywrightTimeoutError
 import re
-
+from constants.product_labels import PRODUCT_LABELS
 
 class HistoryPanel:
     def __init__(self, page: Page):
@@ -25,45 +25,54 @@ class HistoryPanel:
         rows = self.get_product_rows()
         count = rows.count()
 
+        all_products = []
+
         for i in range(count):
             row = rows.nth(i)
 
-            # Tên sản phẩm - đúng selector theo cấu trúc thật
             product_name = row.locator(
                 'div[class*="text-14"][class*="leading-20"][class*="truncate"]'
             ).first.inner_text().strip()
 
-            # Các hành động là div.cursor-pointer chứa span text, không phải <button>
-            action_items = row.locator('div[data-e2e="e197794d-b324-d3da"]')
-            action_count = action_items.count()
+            product_name = PRODUCT_LABELS.get(product_name, product_name)
+
+            action_items = row.locator(
+                'div[data-e2e="e197794d-b324-d3da"]'
+            )
 
             target_action = None
-            for j in range(action_count):
+
+            for j in range(action_items.count()):
                 item = action_items.nth(j)
-                text = item.inner_text().strip()
-                if text == "Xem nội dung":
+
+                if item.inner_text().strip() == "Xem nội dung":
                     target_action = item
                     break
 
             if target_action is None:
-                logging.info(f"[{product_name}] Không có action 'Xem nội dung', bỏ qua")
-                continue
-
-            # Kiểm tra action có bị disable không (class opacity-50 cursor-not-allowed)
-            class_attr = target_action.get_attribute("class") or ""
-            if "cursor-not-allowed" in class_attr:
-                logging.info(f"[{product_name}] Action bị disable, bỏ qua")
+                logging.info(
+                    f"[{product_name}] Không có action 'Xem nội dung', bỏ qua"
+                )
                 continue
 
             logging.info(f"[{product_name}] Mở popup video")
 
-            with self.page.expect_response(lambda r: True, timeout=10000):
-                target_action.click()
+            target_action.click()
 
             videos = self.process_video_popup(product_name)
+
+            all_products.append(
+                {
+                    "product": product_name,
+                    "videos": videos,
+                }
+            )
+
             logging.info(
                 f"[{product_name}] Thu thập {len(videos)} video"
             )
+
+        return all_products
 
     def process_video_popup(self, product_name: str):
         logging.info(f"[{product_name}] Chờ video cards xuất hiện")

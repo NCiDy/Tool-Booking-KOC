@@ -1,5 +1,5 @@
 import logging
-
+from parser.video_formatter import build_video_text
 from browser.browser_manager import BrowserManager
 from browser.tiktok_page import TikTokSampleRequestPage
 from sheet.sheet_service import SheetService
@@ -41,7 +41,18 @@ def main():
 
             tiktok.open_history()
             panel = HistoryPanel(page)
-            panel.process_products()
+            products = panel.process_products()
+
+            video_text = build_video_text(products)
+
+            sheet.update_video_links(
+                item["row"],
+                video_text
+            )
+
+            logging.info(
+                f"Đã ghi {len(products)} sản phẩm vào Google Sheets"
+            )
             tiktok.verify_history_opened()
 
             logging.info(f"Hoàn thành: {item['koc']}")

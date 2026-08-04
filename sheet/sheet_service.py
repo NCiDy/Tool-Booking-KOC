@@ -1,5 +1,6 @@
 import gspread
 from google.oauth2.service_account import Credentials
+from config import COL_VIDEO_LINK
 
 from config import (
     GOOGLE_CREDENTIALS,
@@ -73,3 +74,8 @@ class SheetService:
             )
 
         return rows
+
+    def update_video_links(self, row_number: int, text: str):
+        cell = f"{COL_VIDEO_LINK}{row_number}"
+
+        self.sheet.update(cell, [[text]])

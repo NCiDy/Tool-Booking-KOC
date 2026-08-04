@@ -22,6 +22,10 @@ COL_VIDEO_LINK = "R"
 
 TARGET_STATUS = "ĐÃ NHẬN MẪU"
 
+FILTER_BY_DATE = False
+
+START_DATE = ""
+END_DATE = ""
 # =========================
 # Logging
 # =========================
