@@ -3,6 +3,7 @@ import logging
 from browser.browser_manager import BrowserManager
 from browser.tiktok_page import TikTokSampleRequestPage
 from sheet.sheet_service import SheetService
+from browser.history_panel import HistoryPanel
 
 logging.basicConfig(
     level=logging.INFO,
@@ -39,6 +40,8 @@ def main():
             tiktok.select_koc(item["koc"])
 
             tiktok.open_history()
+            panel = HistoryPanel(page)
+            panel.process_products()
             tiktok.verify_history_opened()
 
             logging.info(f"Hoàn thành: {item['koc']}")
