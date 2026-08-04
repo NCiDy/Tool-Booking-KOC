@@ -1,4 +1,4 @@
-from playwright.sync_api import Page
+from playwright.sync_api import Page, TimeoutError as PlaywrightTimeoutError
 import logging
 
 
@@ -31,22 +31,37 @@ class TikTokSampleRequestPage:
     def select_koc(self, koc_name: str):
         logging.info(f"Chọn KOC: {koc_name}")
 
-        # Chờ dropdown xuất hiện
-        dropdown = self.page.locator("div[data-tid='m4b_dropdown_menu']")
-        dropdown.wait_for(state="visible", timeout=10000)
+        try:
+            # Chờ dropdown xuất hiện
+            dropdown = self.page.locator(
+                "div[data-tid='m4b_dropdown_menu']"
+            )
 
-        # Chọn item có đúng username
-        koc_item = dropdown.locator(
-            f"div[data-tid='m4b_dropdown_menu_item']:has(span.text-brand-10:has-text('{koc_name}'))"
-        ).first
+            dropdown.wait_for(
+                state="visible",
+                timeout=3000
+            )
 
-        koc_item.wait_for(state="visible", timeout=10000)
+            # Chọn item có đúng username
+            koc_item = dropdown.locator(
+                f"div[data-tid='m4b_dropdown_menu_item']:has(span.text-brand-10:has-text('{koc_name}'))"
+            ).first
 
-        koc_item.click()
+            koc_item.wait_for(
+                state="visible",
+                timeout=3000
+            )
 
-        self.page.wait_for_timeout(1500)
+            koc_item.click()
 
-        logging.info("Đã chọn đúng KOC")
+            self.page.wait_for_timeout(1500)
+
+            logging.info("Đã chọn đúng KOC")
+
+        except PlaywrightTimeoutError:
+            raise Exception(
+                f"Không tìm thấy KOC: {koc_name}"
+            )
 
     def open_history(self):
         logging.info("Mở popup Lịch sử")

@@ -31,30 +31,65 @@ def main():
 
         tiktok.wait_until_ready()
 
+        failed_kocs = []
+        success_count = 0
+
         for index, item in enumerate(rows, start=1):
             logging.info(
                 f"[{index}/{len(rows)}] Đang xử lý KOC: {item['koc']}"
             )
 
-            tiktok.search_koc(item["koc"])
-            tiktok.select_koc(item["koc"])
+            try:
+                tiktok.search_koc(item["koc"])
+                tiktok.select_koc(item["koc"])
 
-            tiktok.open_history()
-            panel = HistoryPanel(page)
-            products = panel.process_products()
+                tiktok.open_history()
+                panel = HistoryPanel(page)
+                products = panel.process_products()
 
-            video_text = build_video_text(products)
+                video_text = build_video_text(products)
 
-            sheet.update_video_links(
-                item["row"],
-                video_text
-            )
-            logging.info(
-                f"Đã ghi {len(products)} sản phẩm vào Google Sheets"
-            )
-            tiktok.verify_history_opened()
+                sheet.update_video_links(
+                    item["row"],
+                    video_text
+                )
 
-            logging.info(f"Hoàn thành: {item['koc']}")
+                success_count += 1
+
+                logging.info(
+                    f"Đã ghi {len(products)} sản phẩm vào Google Sheets"
+                )
+
+                logging.info(f"Hoàn thành: {item['koc']}")
+
+            except Exception as e:
+                logging.error(
+                    f"KOC lỗi: {item['koc']} - {e}"
+                )
+
+                failed_kocs.append(
+                    {
+                        "koc": item["koc"],
+                        "row": item["row"],
+                        "error": str(e),
+                    }
+                )
+
+                continue
+
+        logging.info("========================================")
+        logging.info("KẾT THÚC PHIÊN CHẠY")
+        logging.info(f"Tổng KOC: {len(rows)}")
+        logging.info(f"Thành công: {success_count}")
+        logging.info(f"Thất bại: {len(failed_kocs)}")
+
+        if failed_kocs:
+            logging.info("Danh sách KOC thất bại:")
+
+            for failed in failed_kocs:
+                logging.info(
+                    f"- {failed['koc']} (dòng {failed['row']}): {failed['error']}"
+                )    
 
     finally:
         browser.close()
