@@ -1,6 +1,8 @@
 import gspread
 from google.oauth2.service_account import Credentials
 from config import COL_VIDEO_LINK
+import re
+from gspread.utils import a1_to_rowcol
 
 from config import (
     GOOGLE_CREDENTIALS,
@@ -76,6 +78,63 @@ class SheetService:
         return rows
 
     def update_video_links(self, row_number: int, text: str):
-        cell = f"{COL_VIDEO_LINK}{row_number}"
+        row, col = a1_to_rowcol(f"{COL_VIDEO_LINK}{row_number}")
 
-        self.sheet.update(cell, [[text]])
+        # Tìm tất cả URL trong nội dung
+        url_pattern = re.compile(r"https://www\.tiktok\.com/\S+")
+
+        text_format_runs = []
+
+        for match in url_pattern.finditer(text):
+            # Reset format từ đầu dòng
+            line_start = text.rfind("\n", 0, match.start()) + 1
+
+            text_format_runs.append(
+                {
+                    "startIndex": line_start,
+                    "format": {}
+                }
+            )
+
+            # Bắt đầu hyperlink đúng từ URL
+            text_format_runs.append(
+                {
+                    "startIndex": match.start(),
+                    "format": {
+                        "link": {
+                            "uri": match.group()
+                        }
+                    }
+                }
+            )
+
+        request = {
+            "updateCells": {
+                "range": {
+                    "sheetId": self.sheet.id,
+                    "startRowIndex": row - 1,
+                    "endRowIndex": row,
+                    "startColumnIndex": col - 1,
+                    "endColumnIndex": col,
+                },
+                "rows": [
+                    {
+                        "values": [
+                            {
+                                "userEnteredValue": {
+                                    "stringValue": text
+                                },
+                                "textFormatRuns": text_format_runs,
+                            }
+                        ]
+                    }
+                ],
+                "fields": "userEnteredValue,textFormatRuns",
+            }
+        }
+
+        self.sheet.spreadsheet.batch_update(
+            {
+                "requests": [request]
+            }
+        )

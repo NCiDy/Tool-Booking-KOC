@@ -27,8 +27,8 @@ TARGET_STATUS = "ĐÃ NHẬN MẪU"
 FILTER_BY_DATE = True
 
 # Định dạng: dd/mm/yyyy
-START_DATE = "01/05/2026"
-END_DATE = "30/05/2026"
+START_DATE = "10/05/2026"
+END_DATE = "20/05/2026"
 # =========================
 # Logging
 # =========================
