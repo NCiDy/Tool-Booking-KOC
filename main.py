@@ -5,6 +5,7 @@ from browser.tiktok_page import TikTokSampleRequestPage
 from sheet.sheet_service import SheetService
 from browser.history_panel import HistoryPanel
 from reports.report_service import ReportService
+from services.gmv_service import GMVService
 from pathlib import Path
 from datetime import datetime
 
@@ -132,6 +133,25 @@ def main():
     finally:
         browser.close()
 
+def run_gmv_service():
+    service = GMVService()
+    service.run()
 
 if __name__ == "__main__":
-    main()
+    
+    print()
+    print("=== TikTok Booking Assistant ===")
+    print("1. Tìm kiếm GMV của KOL")
+    print("2. Lấy link video của các KOL")
+    print()
+
+    choice = input("Chọn chức năng (1/2): ").strip()
+
+    if choice == "1":
+        run_gmv_service()
+
+    elif choice == "2":
+        main()
+
+    else:
+        print("Lựa chọn không hợp lệ.")

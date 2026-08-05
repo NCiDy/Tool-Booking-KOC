@@ -63,6 +63,59 @@ class TikTokSampleRequestPage:
                 f"Không tìm thấy KOC: {koc_name}"
             )
 
+
+    def select_creator_koc(self, koc_name: str):
+        logging.info(f"Chọn KOC Creator: {koc_name}")
+
+        try:
+            dropdown = self.page.locator(
+                "div[data-tid='m4b_dropdown_menu']"
+            )
+
+            dropdown.wait_for(
+                state="visible",
+                timeout=10000
+            )
+
+            items = dropdown.locator(
+                "div[data-tid='m4b_dropdown_menu_item']"
+            )
+
+            count = items.count()
+
+            if count == 0:
+                raise Exception(f"Không tìm thấy KOC: {koc_name}")
+
+            # Chỉ có 1 kết quả → click luôn
+            if count == 1:
+                items.first.click()
+                self.page.wait_for_timeout(1500)
+                logging.info("Đã chọn KOC Creator (1 kết quả)")
+                return
+
+            # Có từ 2 kết quả trở lên → so khớp chính xác username
+            for i in range(count):
+                item = items.nth(i)
+
+                username = item.locator(
+                    "span[data-e2e='c56dc287-a320-2ef6']"
+                ).first.inner_text().strip()
+
+                logging.info(f"Kết quả {i+1}: {username}")
+
+                if username == koc_name:
+                    item.click()
+                    self.page.wait_for_timeout(1500)
+                    logging.info(
+                        "Đã chọn đúng KOC Creator theo username"
+                    )
+                    return
+
+            raise Exception(f"Không tìm thấy KOC: {koc_name}")
+
+        except PlaywrightTimeoutError:
+            raise Exception(f"Không tìm thấy KOC: {koc_name}")
+
     def open_history(self):
         logging.info("Mở popup Lịch sử")
 

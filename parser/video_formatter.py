@@ -55,7 +55,8 @@ def build_video_text(products: list) -> str:
             url = video.get("url", "")
 
             lines.append(
-                f"{product_name} {index} ({day}): {url}"
+                f"{product_name} {index}: {url}"
+                #f"{product_name} {index} ({day}): {url}"
             )
 
         if videos:

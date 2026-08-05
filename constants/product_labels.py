@@ -25,7 +25,7 @@ PRODUCT_LABELS = {
     'Combo 3 Túi Nougat Cốt Sữa Mềm Dẻo - Ngập Ngụa Trái Cây Sấy ! Nougat Trái Cây "Cắt Đường" - Ăn Thả Ga Không Lo Bé Mỡ! an vat tuoi tho anvat vietnam snack tala đồ ăn vặt': 'SKU10: Kẹo Nougat',
     'COMBO Bánh Quy Dinh Dưỡng Tứ Sắc - Khai Hoa Tứ Sắc - Tròn Vị Bơ, Thơm Vị Hạt ! Bánh Quy Bơ Tạo Hình Hoa Mix Hạt Thượng Hạng 250gr Ăn Vặt anvat vietnam snack tala đồ ăn vặt': 'SKU8: Quy Tứ Sắc',
     'COMBO Xoài Mắm Ớt - Chua Cay Tê Tái - Xoài Dẻo Đẫm Sốt Mắm Kẹo - Nhìn Là Thèm, Cắn Là Sướng! đồ ăn vặt': 'SKU19: Xoài Sấy',
-    'COMBO MÌ TRỘN LÚA NỔI: SỢI MÌ TỪ "CÂY LÚA BIẾT BƠI" - ĂN NGON KHÔNG LO NÓNG! Mì Trộn Hộp Giấy Lúa Nổi "Thuận Thiên": Tinh Hoa Ớt Mè Tía Tô x Sốt Vị Quảng - Trộn Là Dính - 3 Phút Có Ăn Ngay đồ ăn vặt': 'SKU16: Mì Trộn Lúa',
+    'COMBO MÌ TRỘN LÚA NỔI: SỢI MÌ TỪ "CÂY LÚA BIẾT BƠI" - ĂN NGON KHÔNG LO NÓNG! Mì Trộn Hộp Giấy Lúa Nổi "Thuận Thiên": Tinh Hoa Ớt Mè Tía Tô x Sốt Vị Quảng - Trộn Là Dính - 3 Phút Có Ăn Ngay đồ ăn vặt': 'SKU16: Mì Lúa Nổi',
     'COMBO Nui Ăn Vặt "HOÀNG KIM" VỊ ĐỈNH CAO Giòn Thơm, Đậm Đà ! Nui Sấy Tẩm Vị - Đẫm Sốt Đỉnh Chóp, Nhai Rộp Rộp Điếc Tai ️️... 300gr đồ ăn vặt': 'SKU31: Nui 6 Vị',
     'GIA HƯNG - Combo 3 Snack Siêu Hot: Nui Chiên Giòn, Khoai Tây Phô Mai & Bắp Tỏi Ớt Chiên - Vị Ngọt Mặn Hài Hòa, Giòn Rụm, Thơm Béo, Đóng Zipper Kín đồ ăn vặt': 'SKU37: Combo 3 Snack Siêu Hot',
     'SIÊU Combo 5 Vị Khoai Lang & Khoai Môn Chiên Giòn - Đã Bóc Túi Là Không Thể Dừng - Set Khoai Lát Mỏng Đẫm Vị - Giòn Tan Nhức Nách! - "Kẻ Hủy Diệt" Mồi 250gr đồ ăn dacsannb snack tala đồ ăn vặt': 'SKU1: Khoai Lang & Khoai Môn',

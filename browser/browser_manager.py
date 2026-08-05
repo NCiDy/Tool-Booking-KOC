@@ -9,7 +9,7 @@ class BrowserManager:
         self.context = None
         self.page = None
 
-    def connect(self):
+    def connect(self, target_url=TIKTOK_SAMPLE_REQUEST_URL):
         self.playwright = sync_playwright().start()
 
         self.browser = self.playwright.chromium.connect_over_cdp(CDP_URL)
@@ -22,13 +22,13 @@ class BrowserManager:
 
         for page in self.context.pages:
             url = page.url
-            if TIKTOK_SAMPLE_REQUEST_URL in url:
+            if target_url in url:
                 self.page = page
                 self.page.bring_to_front()
                 return self.page
 
         raise Exception(
-            "Không tìm thấy tab TikTok Shop Affiliate - Yêu cầu hàng mẫu"
+            f"Không tìm thấy tab TikTok: {target_url}"
         )
 
     def close(self):
