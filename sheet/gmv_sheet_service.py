@@ -4,16 +4,17 @@ from config import (
     TARGET_STATUS,
     WORKSHEET_GMV,
     COL_RESULT,
+    COL_CATEGORY,
 )
 
 
 class GMVSheetService(SheetService):
-    def __init__(self):
+    def __init__(self, worksheet_name=WORKSHEET_GMV):
         super().__init__()
 
-        # Đổi sang worksheet KOC_GMV trong cùng spreadsheet
+        # Đổi worksheet trong cùng spreadsheet
         self.sheet = self.sheet.spreadsheet.worksheet(
-            WORKSHEET_GMV
+            worksheet_name
         )
 
     def get_rows_to_process(self):
@@ -51,5 +52,17 @@ class GMVSheetService(SheetService):
     def clear_result(self, row: int):
         self.sheet.update(
             f"{COL_RESULT}{row}",
+            [[""]]
+        )
+
+    def update_category(self, row: int, value: str):
+        self.sheet.update(
+            f"{COL_CATEGORY}{row}",
+            [[value]]
+        )
+
+    def clear_category(self, row: int):
+        self.sheet.update(
+            f"{COL_CATEGORY}{row}",
             [[""]]
         )

@@ -27,6 +27,10 @@ def parse_gmv(text: str):
 def parse_sales(text: str):
     text = text.strip().replace(" ", "")
 
+    if text.endswith("Tr"):
+        value = float(text.replace("Tr", "").replace(",", "."))
+        return int(value * 1_000_000)
+
     if text.endswith("K"):
         value = float(text.replace("K", "").replace(",", "."))
         return int(value * 1000)

@@ -6,6 +6,7 @@ from sheet.sheet_service import SheetService
 from browser.history_panel import HistoryPanel
 from reports.report_service import ReportService
 from services.gmv_service import GMVService
+from services.koc_discovery_service import KOCDiscoveryService
 from pathlib import Path
 from datetime import datetime
 
@@ -66,7 +67,7 @@ def main():
                 video_text = build_video_text(products)
 
                 sheet.update_video_links(
-                    item["row"],
+                    item["row"], 
                     video_text
                 )
                 video_count = sum(
@@ -137,21 +138,29 @@ def run_gmv_service():
     service = GMVService()
     service.run()
 
+def run_koc_discovery_service():
+    service = KOCDiscoveryService()
+    service.run()
+
 if __name__ == "__main__":
     
     print()
     print("=== TikTok Booking Assistant ===")
     print("1. Tìm kiếm GMV của KOL")
     print("2. Lấy link video của các KOL")
+    print("3. Lấy KOC trực tiếp từ danh sách TikTok")
     print()
 
-    choice = input("Chọn chức năng (1/2): ").strip()
+    choice = input("Chọn chức năng (1/2/3): ").strip()
 
     if choice == "1":
         run_gmv_service()
 
     elif choice == "2":
         main()
+
+    elif choice == "3":
+        run_koc_discovery_service()
 
     else:
         print("Lựa chọn không hợp lệ.")

@@ -7,7 +7,23 @@ from sheet.gmv_sheet_service import GMVSheetService
 from parser.gmv_parser import parse_gmv, parse_sales
 from config import GMV_THRESHOLD, SALES_THRESHOLD
 from config import TIKTOK_CREATOR_SEARCH_URL
+import random
 
+def evaluate_metrics(gmv_text: str, sales_text: str):
+    gmv_value, gmv_hidden = parse_gmv(gmv_text)
+    sales_value = parse_sales(sales_text)
+
+    result = ""
+
+    if not gmv_hidden and gmv_value is not None:
+        if gmv_value > GMV_THRESHOLD:
+            result = gmv_text
+
+    else:
+        if sales_value > SALES_THRESHOLD:
+            result = f"{sales_value} SMBR"
+
+    return result
 
 class GMVService:
     def run(self):
@@ -47,6 +63,7 @@ class GMVService:
 
                     gmv_text = metrics["gmv_text"]
                     sales_text = metrics["sales_text"]
+                    category_text = metrics.get("category_text", "")
 
                     gmv_value, gmv_hidden = parse_gmv(gmv_text)
                     sales_value = parse_sales(sales_text)
@@ -66,15 +83,21 @@ class GMVService:
                             item["row"],
                             result
                         )
-
+                        if category_text:
+                            sheet.update_category(
+                                item["row"],
+                                category_text
+                            )
+                    
                         qualified_count += 1
 
                         logging.info(
-                            f"Đạt điều kiện - {result}"
+                            f"Đạt điều kiện - Result: {result} | Category: {category_text}"
                         )
 
                     else:
                         sheet.clear_result(item["row"])
+                        sheet.clear_category(item["row"])
 
                         rejected_count += 1
 
@@ -90,8 +113,12 @@ class GMVService:
                     logging.error(
                         f"KOC lỗi: {item['koc']} - {e}"
                     )
-
-                    continue
+                # Delay ngẫu nhiên giữa các KOC
+                delay = random.randint(1800, 4200)
+                logging.info(
+                    f"Chờ {delay / 1000:.1f}s trước khi xử lý KOC tiếp theo"
+                )
+                page.wait_for_timeout(delay)
 
             logging.info("========================================")
             logging.info("KẾT THÚC PHIÊN CHẠY GMV")

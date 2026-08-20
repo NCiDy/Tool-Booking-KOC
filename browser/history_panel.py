@@ -10,17 +10,21 @@ class HistoryPanel:
         self.page = page
 
     def get_product_rows(self):
-        panel = self.page.locator(
-            "tr.core-table-expand-content div[class*='SubTableWrap']"
-        ).first
-        panel.wait_for(state="visible", timeout=10000)
-
-        # Product items là các div, không phải tr — match theo phần class ổn định
-        rows = panel.locator(
-            'div[role="list"] > div[class*="ProdGroupByCreatorItemWrap"]'
+        rows = self.page.locator(
+            'div[class*="ProdGroupByCreatorItemWrap"]'
         )
+
+        rows.first.wait_for(
+            state="visible",
+            timeout=10000
+        )
+
         count = rows.count()
-        logging.info(f"Tìm thấy {count} dòng sản phẩm")
+
+        logging.info(
+            f"Tìm thấy {count} dòng sản phẩm"
+        )
+
         return rows
 
     def process_products(self):
@@ -33,9 +37,10 @@ class HistoryPanel:
             row = rows.nth(i)
 
             product_name = row.locator(
-                'div[class*="text-14"][class*="leading-20"][class*="truncate"]'
+                'span[data-e2e="5810fc19-8066-252a"]'
             ).first.inner_text().strip()
 
+            product_name = product_name.split("#", 1)[0].strip()
             product_name = PRODUCT_LABELS.get(product_name, product_name)
 
             action_items = row.locator(
@@ -111,20 +116,23 @@ class HistoryPanel:
 
     def process_video_popup(self, product_name: str):
         logging.info(f"[{product_name}] Chờ video cards xuất hiện")
-
         # Chờ video card đầu tiên xuất hiện
         video_blocks = self.page.locator(
             "div[class*='video-card__StyledVideoCard']"
         )
 
-        video_blocks.first.wait_for(state="attached", timeout=10000)
-
-        count = video_blocks.count()
+        count = 0
+        for _ in range(15):
+            count = video_blocks.count()
+            if count > 0:
+                break
+            self.page.wait_for_timeout(200)
 
         logging.info(f"[{product_name}] Tìm thấy {count} video")
 
         results = []
 
+        # NẾU COUNT > 0 THÌ MỚI CHẠY VÒNG LẶP
         for i in range(count):
             block = video_blocks.nth(i)
 
@@ -174,46 +182,78 @@ class HistoryPanel:
 
                 video_page = page_info.value
 
-                # Chỉ chờ rất ngắn để URL được gán
-                for _ in range(10):  # tối đa ~2 giây
-                    video_url = video_page.url
-                    if video_url and video_url != "about:blank":
+                video_url = ""
+
+                # Lấy URL TikTok ngay khi nó xuất hiện
+                for _ in range(25):  # tối đa ~5 giây
+                    current_url = video_page.url
+
+                    if "tiktok.com/@" in current_url and "/video/" in current_url:
+                        video_url = current_url
                         break
+
                     self.page.wait_for_timeout(200)
 
-                video_url = video_page.url
+                 # Nếu đã lấy được URL TikTok thì chờ thêm để ổn định
+                if video_url:
+                    self.page.wait_for_timeout(3000)  
+                    final_url = video_page.url    
+                    if (
+                        "tiktok.com/@" in final_url
+                        and "/video/" in final_url
+                    ):
+                        video_url = final_url    
 
-                match = re.search(r"/video/(\d+)", video_url)
-                video_id = match.group(1) if match else ""
+                # Nếu không lấy được URL TikTok thì mới báo lỗi
+                if not video_url:
+                    logging.warning(
+                        f"[{product_name}] Video {i+1}/{count} - Không lấy được URL TikTok"
+                    )
+
+                    results.append(
+                        {
+                            "publish_date": publish_date,
+                            "url": "Không lấy được link",
+                        }
+                    )
+
+                    video_page.close()
+                    continue
 
                 logging.info(f"[{product_name}] URL: {video_url}")
 
-                results.append({
-                    "publish_date": publish_date,
-                    "url": video_url,
-                })
+                results.append(
+                    {
+                        "publish_date": publish_date,
+                        "url": video_url,
+                    }
+                )
 
                 video_page.close()
 
             except Exception as e:
-                logging.error(f"[{product_name}] Không lấy được link video {i+1}: {e}")
+                logging.error(
+                    f"[{product_name}] Không lấy được link video {i+1}: {e}"
+                )
 
-                results.append({
-                    "publish_date": publish_date,
-                    "url": "Không lấy được link",
-                })
+                results.append(
+                    {
+                        "publish_date": publish_date,
+                        "url": "Không lấy được link",
+                    }
+                )
 
         # ===== ĐÓNG POPUP VIDEO =====
-        ok_button = self.page.locator(
-            "button[data-e2e='3a07bec0-c901-5e60']"
-        ).first
+        ok_button = self.page.locator("button[data-e2e='3a07bec0-c901-5e60']").first
 
-        ok_button.wait_for(state="attached", timeout=5000)
+        try:
+            ok_button.wait_for(state="attached",timeout=5000)
 
-        ok_button.click()
+            ok_button.click()
 
-        logging.info(
-            f"[{product_name}] Đã đóng popup video"
-        )
+            logging.info(f"[{product_name}] Đã đóng popup video")
+
+        except Exception:
+            logging.warning(f"[{product_name}] Không tìm thấy nút đóng popup")
 
         return results

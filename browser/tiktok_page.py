@@ -134,11 +134,13 @@ class TikTokSampleRequestPage:
 
     def verify_history_opened(self):
         logging.info("Kiểm tra popup Lịch sử")
-
-        history_panel = self.page.locator(
-            "tr.core-table-expand-content div.prod-group-by-creator-list__SubTableWrap-eMtloh"
+        history_item = self.page.locator(
+            'div[class*="ProdGroupByCreatorItemWrap"]'
         ).first
 
-        history_panel.wait_for(state="visible", timeout=10000)
+        history_item.wait_for(
+            state="visible",
+            timeout=10000
+        )
 
         logging.info("Xác nhận popup Lịch sử đã mở")
